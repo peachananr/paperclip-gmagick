@@ -5,11 +5,12 @@ module Paperclip
 
     def initialize(file, options = {}, attachment = nil)
       @geometry            = options[:geometry]
+      @convert_options     = options[:convert_options]
+      @source_file_options = options[:source_file_options]
       @file                = file
       @format              = options[:format]
       @current_format      = File.extname(@file.path)
       @basename            = File.basename(@file.path, @current_format)
-
       @target_geometry     = (options[:string_geometry_parser] || Geometry).parse(@geometry)
       @current_geometry    = (options[:file_geometry_parser] || Geometry).from_file(@file)
     end
@@ -24,10 +25,10 @@ module Paperclip
 
       begin
         parameters = []
-        parameters << source_file_options
+        parameters << @source_file_options
         parameters << ":source"
         parameters << transformation_command
-        parameters << convert_options
+        parameters << @convert_options
         parameters << ":dest"
 
         parameters = parameters.flatten.compact.join(" ").strip.squeeze(" ")
@@ -41,7 +42,7 @@ module Paperclip
 
       dst
     end
-    
+
     def convert(arguments = "", local_options = {})
       Paperclip.run('gm convert', arguments, local_options)
     end
